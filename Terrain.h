@@ -31,6 +31,7 @@ public:
     
     void DrawTerrain(int type);
     void CircleAlgorithm();
+    void reset();
 
 private:
 };

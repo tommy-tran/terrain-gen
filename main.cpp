@@ -18,14 +18,15 @@ Terrain *terrain;
 #define X 0
 #define Y 1
 #define Z 2
-#define W 3
 
 //Globals
-float camPos[] = {100, -60, -100};	//where the camera is
+float camPos[] = {0, -60, 0};	//where the camera is
 float camTarget[] = {50, 0, 50};
 float yRotate = 0;
 float xRotate = 0;
 float zRotate = 0;
+int mode = 0;
+int shape = 0;
 
 //OpenGL functions
 //keyboard stuff
@@ -66,17 +67,28 @@ void keyboard(unsigned char key, int xIn, int yIn)
 			camTarget[X] += 0.5f;
 			break;
 		case 'w':
-			if ( mod == GLUT_ACTIVE_ALT) {
-				camPos[Y] -= 0.5f;
-				camTarget[Y] -=0.5f;	
-			} else {
-				camPos[Z] += 0.5f;
-				camTarget[Z] +=0.5f;
-			}
+			mode = (mode + 1) % 3;
 			break;
-		
+
+		case 't':
+			shape = (shape + 1) % 2;
+			break;
+		case 'r':
+			terrain->reset();
+			break;
+		// case 'w':
+		// 	if ( mod == GLUT_ACTIVE_ALT) {
+		// 		camPos[Y] -= 0.5f;
+		// 		camTarget[Y] -=0.5f;	
+		// 	} else {
+		// 		camPos[Z] += 0.5f;
+		// 		camTarget[Z] +=0.5f;
+		// 	}
+		// 	break;
 	}
 }
+
+
 
 void special(int key, int xIn, int yIn){
 	switch (key){
@@ -132,7 +144,6 @@ void init(void)
 
 void display(void)
 {
-
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -144,7 +155,27 @@ void display(void)
 		glRotatef(5 * yRotate, 0, 1, 0);
 		glRotatef(5 * xRotate, 0, 0, 1);
 		glTranslatef(-50,0,-50);
-		terrain->DrawTerrain(3);
+		
+		switch(mode) {
+			case 0:
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				terrain->DrawTerrain(shape);
+				break;
+			case 1:
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				terrain->DrawTerrain(shape);
+				break;
+			case 2:
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				terrain->DrawTerrain(shape);
+				glPushMatrix();
+					// glTranslatef(0,-0.1,0);
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					glColor3f(1,1,1);
+					terrain->DrawTerrain(shape + mode);
+				glPopMatrix();
+		}
+		
 	glPopMatrix();
 
 	glutSwapBuffers();
@@ -195,7 +226,7 @@ int main(int argc, char** argv)
 	//fps timer callback
 	glutTimerFunc(17, FPSTimer, 0);
 
-	// glEnable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST);
 	init();
 
 	// createOurMenu();
