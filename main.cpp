@@ -21,8 +21,11 @@ Terrain *terrain;
 #define W 3
 
 //Globals
-float camPos[] = {50, -40, -20};	//where the camera is
-float camTarget[] = { 50, 0, 30};
+float camPos[] = {100, -60, -100};	//where the camera is
+float camTarget[] = {50, 0, 50};
+float yRotate = 0;
+float xRotate = 0;
+float zRotate = 0;
 
 //OpenGL functions
 //keyboard stuff
@@ -44,31 +47,31 @@ void keyboard(unsigned char key, int xIn, int yIn)
 				printf("x\n");
 
 		case 'a':
-			camPos[X] -= 0.1f;
-			camTarget[X] -=0.1f;
+			camPos[X] -= 0.5f;
+			camTarget[X] -=0.5f;
 			break;
 
 		case 's':
 			if ( mod == GLUT_ACTIVE_ALT) {
-				camPos[Y] += 0.1f;
-				camTarget[Y] +=0.1f;	
+				camPos[Y] += 0.5f;
+				camTarget[Y] +=0.5f;	
 			} else {
-				camPos[Z] -= 0.1f;
-				camTarget[Z] -=0.1f;
+				camPos[Z] -= 0.5f;
+				camTarget[Z] -=0.5f;
 			}
 			break;
 
 		case 'd':
-			camPos[X] += 0.1f;
-			camTarget[X] += 0.1f;
+			camPos[X] += 0.5f;
+			camTarget[X] += 0.5f;
 			break;
 		case 'w':
 			if ( mod == GLUT_ACTIVE_ALT) {
-				camPos[Y] -= 0.1f;
-				camTarget[Y] -=0.1f;	
+				camPos[Y] -= 0.5f;
+				camTarget[Y] -=0.5f;	
 			} else {
-				camPos[Z] += 0.1f;
-				camTarget[Z] +=0.1f;
+				camPos[Z] += 0.5f;
+				camTarget[Z] +=0.5f;
 			}
 			break;
 		
@@ -78,16 +81,20 @@ void keyboard(unsigned char key, int xIn, int yIn)
 void special(int key, int xIn, int yIn){
 	switch (key){
 		case GLUT_KEY_DOWN:
-			camTarget[Z] -= 0.2f;
+			// camPos[Z] -= 0.5f;
+			xRotate -= 0.5f;
 			break;
 		case GLUT_KEY_UP:
-			camTarget[Z] += 0.2f;
+			// camPos[Z] += 0.5f;
+			xRotate += 0.5f;
 			break;
 		case GLUT_KEY_LEFT:
-			camTarget[X] -= 0.2f;
+			// camPos[X] -= 0.5f;
+			yRotate -= 0.5f;
 			break;
 		case GLUT_KEY_RIGHT:
-			camTarget[X] += 0.2f;
+			// camPos[X] += 0.5f;
+			yRotate += 0.5f;
 			break;
 	}
 }
@@ -113,30 +120,34 @@ void mousePassiveMotion(int x, int y){
 void init(void)
 {
 	glClearColor(0, 0, 0, 0);
-	glColor3f(1, 1, 1);
+	glColor3f(0.5, 0.3, 0.7);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(45, 1, 1, 100);
+	gluPerspective(45, 1, 1, 1000);
 
-	terrain = new Terrain();
-	terrain->CreateTerrain(100, 100);
+	terrain = new Terrain(100,100);
+	terrain->CircleAlgorithm();
+
 }
 
 void display(void)
 {
 
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	gluLookAt(camPos[0], camPos[1], camPos[2], camTarget[0], camTarget[1], camTarget[2], 0,0,1);
-	
-	// scale the entire solar system
-	// glScalef(SceneScale, SceneScale, SceneScale);
+	gluLookAt(camPos[0], camPos[1], camPos[2], camTarget[0], camTarget[1], camTarget[2], 0,-1,0);
 
+	glTranslatef(50,0,50);
 	glPushMatrix();
+		glRotatef(5 * yRotate, 0, 1, 0);
+		glRotatef(5 * xRotate, 0, 0, 1);
+		glPushMatrix();
+		glTranslatef(-50,0,-50);
 		terrain->DrawTerrain();
+		glPopMatrix();
 	glPopMatrix();
 
 	glutSwapBuffers();
@@ -147,13 +158,13 @@ void reshape(int w, int h)
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	//gluOrtho2D(0, w, 0, h);
-	gluPerspective(45, (float)((w+0.0f)/h), 1, 100);
+	gluPerspective(45, 1, 1, 2000);
 
 	glMatrixMode(GL_MODELVIEW);
 	glViewport(0, 0, w, h);
 }
 
-void FPSTimer(int value){ //60fps
+void FPSTimer(int value){ 
 	glutTimerFunc(17, FPSTimer, 0);
 	glutPostRedisplay();
 }
@@ -187,6 +198,7 @@ int main(int argc, char** argv)
 	//fps timer callback
 	glutTimerFunc(17, FPSTimer, 0);
 
+	// glEnable(GL_DEPTH_TEST);
 	init();
 
 	// createOurMenu();
