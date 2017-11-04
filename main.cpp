@@ -128,7 +128,6 @@ void init(void)
 
 	terrain = new Terrain(100,100);
 	terrain->CircleAlgorithm();
-
 }
 
 void display(void)
@@ -144,10 +143,8 @@ void display(void)
 	glPushMatrix();
 		glRotatef(5 * yRotate, 0, 1, 0);
 		glRotatef(5 * xRotate, 0, 0, 1);
-		glPushMatrix();
 		glTranslatef(-50,0,-50);
-		terrain->DrawTerrain();
-		glPopMatrix();
+		terrain->DrawTerrain(3);
 	glPopMatrix();
 
 	glutSwapBuffers();

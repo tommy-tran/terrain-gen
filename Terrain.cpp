@@ -7,26 +7,100 @@ Terrain::Terrain(int x, int z){
     srand(time(NULL));
 }
 
-void Terrain::DrawTerrain(){
+void Terrain::DrawTerrain(int type){
+    int quadChange[4][2] = {{0,0},{0,1},{1,1},{1,0}};
+    int triangle1[3][2] = {{0,0},{1,0},{1,1}};
+    int triangle2[3][2] = {{0,0},{1,1},{0,1}};
     
-    int vertexChange[4][2] = {{0,0},{0,1},{1,1},{1,0}};
-    for (int i = 0; i < this->length - 1; i++) {
-        for (int j = 0; j < this->width - 1; j++) {
-            glBegin(GL_QUADS);
-            for (int v = 0; v < 4; v++) {
-                int x = i + vertexChange[v][0];
-                int z = j + vertexChange[v][1];
-                float _height = fabs(this->height[x][z] / this->max);
-                glColor3f(_height,_height,_height);
-                glVertex3f(x, this->height[x][z], z);
+    switch(type) {
+        case 0:
+            for (int i = 0; i < this->length - 1; i++) {
+                for (int j = 0; j < this->width - 1; j++) {
+                    glBegin(GL_QUADS);
+                    for (int v = 0; v < 4; v++) {
+                        int x = j + quadChange[v][0];
+                        int z = i + quadChange[v][1];
+                        float _height = fabs(this->height[x][z] / this->max);
+                        glColor3f(_height,_height,_height);
+                        glVertex3f(x, this->height[x][z], z);
+                    }
+                    glEnd();
+                }
             }
-            glEnd();
-        }
+        break;
+        case 1:
+            for (int i = 0; i < this->length - 1; i++) {
+                for (int j = 0; j < this->width - 1; j++) {
+                    glBegin(GL_LINE_LOOP);
+                    for (int v = 0; v < 4; v++) {
+                        int x = i + quadChange[v][0];
+                        int z = j + quadChange[v][1];
+                        float _height = fabs(this->height[x][z] / this->max);
+                        glColor3f(_height,_height,_height);
+                        glVertex3f(x, this->height[x][z], z);
+                    }
+                    glEnd();
+                }
+            }
+        break;
+        case 2:
+            for (int i = 0; i < this->length - 1; i++) {
+                for (int j = 0; j < this->width - 1; j++) {
+                    glBegin(GL_TRIANGLES);
+                    for (int v = 0; v < 3; v++) {
+                        int x = i + triangle1[v][0];
+                        int z = j + triangle1[v][1];
+                        float _height = fabs(this->height[x][z] / this->max);
+                        glColor3f(_height,_height,_height);
+                        glVertex3f(x, this->height[x][z], z);
+                    }
+                    glEnd();
+
+                    glBegin(GL_TRIANGLES);
+                    for (int v = 0; v < 3; v++) {
+                        int x = i + triangle2[v][0];
+                        int z = j + triangle2[v][1];
+                        float _height = fabs(this->height[x][z] / this->max);
+                        glColor3f(_height,_height,_height);
+                        glVertex3f(x, this->height[x][z], z);
+                    }
+                    glEnd();
+                }
+            }
+
+        break;
+        case 3:
+            for (int i = 0; i < this->length - 1; i++) {
+                for (int j = 0; j < this->width - 1; j++) {
+                    glBegin(GL_LINE_LOOP);
+                    for (int v = 0; v < 3; v++) {
+                        int x = i + triangle1[v][0];
+                        int z = j + triangle1[v][1];
+                        float _height = fabs(this->height[x][z] / this->max);
+                        glColor3f(_height,_height,_height);
+                        glVertex3f(x, this->height[x][z], z);
+                    }
+                    glEnd();
+
+                    glBegin(GL_LINE_LOOP);
+                    for (int v = 0; v < 3; v++) {
+                        int x = i + triangle2[v][0];
+                        int z = j + triangle2[v][1];
+                        float _height = fabs(this->height[x][z] / this->max);
+                        glColor3f(_height,_height,_height);
+                        glVertex3f(x, this->height[x][z], z);
+                    }
+                    glEnd();
+                }
+            }
+
+        break;
     }
+    
+    
 }
 
 void Terrain::CircleAlgorithm() {
-    // Random center point of circle
     int iterations = 150;
     while (iterations > 0) {
         int x = rand() % this->length; 

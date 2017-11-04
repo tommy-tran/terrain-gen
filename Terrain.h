@@ -19,8 +19,6 @@ using namespace std;
 #endif
 
 
-
-
 class Terrain{
 public:
     int length;
@@ -31,7 +29,7 @@ public:
     
     Terrain(int x, int z);
     
-    void DrawTerrain();
+    void DrawTerrain(int type);
     void CircleAlgorithm();
 
 private:
