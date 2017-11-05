@@ -47,9 +47,15 @@ void keyboard(unsigned char key, int xIn, int yIn)
 			break;
 		case 't':
 			shape = (shape + 1) % 2;
+			if (shape == 0) {
+				glCullFace(GL_FRONT);
+			} else {
+				glCullFace(GL_BACK);
+			}
 			break;
 		case 'r':
 			terrain->reset();
+			glutPostWindowRedisplay(mapDisplay);
 			break;
 		case 'o':
 			camPos[Y] -= 1.5f;
@@ -104,25 +110,7 @@ void special(int key, int xIn, int yIn){
 			break;
 	}
 }
-//mouse
-void mouse(int btn, int state, int x, int y){
 
-	if (btn == GLUT_LEFT_BUTTON){
-
-		if (state == GLUT_UP){
-		}
-
-		if (state == GLUT_DOWN){
-		}
-	}
-}
-void mouseMotion(int x, int y){
-}
-void mousePassiveMotion(int x, int y){
-}
-
-
-//initialization
 void init(void)
 {
 	glClearColor(0, 0, 0, 0);
@@ -131,6 +119,8 @@ void init(void)
 	glLoadIdentity();
 	gluPerspective(45, 1, 1, 1000);
 
+	cout << "******************\n\nTerrain Generator\n\n******************\n";
+	cout << "Controls:\nq: Quit				w: Toggle wireframe mode\nr: Randomize Terrain		t: Switch between Quads and Triangles\ni: Move camera forward		k: Move camera backwards\nj: Move Camera left		l: Move Camera right\nu: Move Camera down		o: Move Camera up\n";
 	cout << "Please input a size for the terrain(50-300): \n";
 	cin >> size;
 
@@ -173,7 +163,6 @@ void display(void)
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 				terrain->DrawTerrain(shape);
 				glPushMatrix();
-					// glTranslatef(0,-0.1,0);
 					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 					glColor3f(0,0,0);
 					terrain->DrawTerrain(shape + mode);
@@ -235,20 +224,17 @@ int main(int argc, char** argv)
 	glutDisplayFunc(display);
 	glutKeyboardFunc(keyboard);
 	glutSpecialFunc(special);
-	glutMouseFunc(mouse);
-	glutMotionFunc(mouseMotion);
-	glutPassiveMotionFunc(mousePassiveMotion);
 	glutReshapeFunc(reshape);
 	glutTimerFunc(120, FPSTimer, 0);
 	glEnable(GL_DEPTH_TEST);
 
-	// glCullFace(GL_BACK);
-	// glFrontFace(GL_CCW);
-	// glEnable(GL_CULL_FACE);
+	glCullFace(GL_FRONT);
+	glFrontFace(GL_CCW);
+	glEnable(GL_CULL_FACE);
 
 	mapDisplay = glutCreateWindow("Map");
 	glutPositionWindow(800,50);
-	glutReshapeWindow(size, size);
+	glutReshapeWindow(size * 1.2, size * 1.2);
 	glutReshapeFunc(reshape2);
 	glutDisplayFunc(displayMap);
 	glutSpecialFunc(special);

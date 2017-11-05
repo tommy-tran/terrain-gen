@@ -70,13 +70,16 @@ void Terrain::DrawTerrain(int type){
             break;
             
         case 3:
+        float _height;
+        int x;
+        int z;
         for (int i = 0; i < this->length - 1; i++) {
             for (int j = 0; j < this->width - 1; j++) {
                 glBegin(GL_TRIANGLES);
                 for (int v = 0; v < 3; v++) {
-                    int x = i + triangle1[v][0];
-                    int z = j + triangle1[v][1];
-                    float _height = fabs(this->height[x][z] / this->max);
+                    x = i + triangle1[v][0];
+                    z = j + triangle1[v][1];
+                    _height = fabs(this->height[x][z] / this->max);
                     glVertex3f(x, this->height[x][z], z);
                 }
                 glEnd();
@@ -84,7 +87,7 @@ void Terrain::DrawTerrain(int type){
                 for (int v = 0; v < 3; v++) {
                     int x = i + triangle2[v][0];
                     int z = j + triangle2[v][1];
-                    float _height = fabs(this->height[x][z] / this->max);
+                    _height = fabs(this->height[x][z] / this->max);
                     glVertex3f(x, this->height[x][z], z);
                 }
                 glEnd();
