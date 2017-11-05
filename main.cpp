@@ -28,6 +28,7 @@ float zRotate = 0;
 int mode = 0;
 int shape = 0;
 int size;
+int mapDisplay;
 
 //OpenGL functions
 //keyboard stuff
@@ -41,12 +42,6 @@ void keyboard(unsigned char key, int xIn, int yIn)
 		case 27:	//27 is the esc key
 			exit(0);
 			break;
-
-		case 'x':
-			if ( mod == GLUT_ACTIVE_ALT)
-				printf("x ALT\n");
-			else
-				printf("x\n");
 		case 'w':
 			mode = (mode + 1) % 3;
 			break;
@@ -80,15 +75,6 @@ void keyboard(unsigned char key, int xIn, int yIn)
 			camPos[Z] -= 1.5f;
 			camTarget[Z] -=1.5f;
 			break;
-		// case 'w':
-		// 	if ( mod == GLUT_ACTIVE_ALT) {
-		// 		camPos[Y] -= 0.5f;
-		// 		camTarget[Y] -=0.5f;	
-		// 	} else {
-		// 		camPos[Z] += 0.5f;
-		// 		camTarget[Z] +=0.5f;
-		// 	}
-		// 	break;
 	}
 }
 
@@ -137,7 +123,6 @@ void init(void)
 {
 	glClearColor(0, 0, 0, 0);
 	glColor3f(0.5, 0.3, 0.7);
-
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPerspective(45, 1, 1, 1000);
@@ -196,19 +181,41 @@ void display(void)
 	glutSwapBuffers();
 }
 
+void displayMap(void)
+{
+	glMatrixMode(GL_MODELVIEW);
+	glClearColor(0,0,0,0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glLoadIdentity();
+
+	glRotatef(5 * yRotate, 0, 0, 1);
+	glScalef(2,2,1);
+	
+	glTranslatef(-0.5, -0.5, 0);
+	terrain->DrawMap();
+
+	glutSwapBuffers();
+}
+
 void reshape(int w, int h)
 {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	//gluOrtho2D(0, w, 0, h);
-	gluPerspective(45, 1, 1, 2000);
+	gluPerspective(45, 1, 1, 1000);
 
 	glMatrixMode(GL_MODELVIEW);
 	glViewport(0, 0, w, h);
 }
 
+void reshape2(int w, int h)
+{
+	glViewport(0,0,w,h);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+}
+
 void FPSTimer(int value){ 
-	glutTimerFunc(24, FPSTimer, 0);
+	glutTimerFunc(30, FPSTimer, 0);
 	glutPostRedisplay();
 }
 
@@ -217,37 +224,30 @@ int main(int argc, char** argv)
 {
 	glutInit(&argc, argv);
 	init();
-	//starts up GLUT
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
-
-	glutInitWindowSize(400, 400);
-	glutInitWindowPosition(100, 100);
-
-	glutCreateWindow("Terrain Generator");	//creates the window
-	
-	//display callback
+	glutInitWindowSize(720, 480);
+	glutInitWindowPosition(50, 50);
+	glutCreateWindow("Terrain Generator");
 	glutDisplayFunc(display);
-
-	//keyboard callback
 	glutKeyboardFunc(keyboard);
 	glutSpecialFunc(special);
-
-	//mouse callbacks
 	glutMouseFunc(mouse);
 	glutMotionFunc(mouseMotion);
 	glutPassiveMotionFunc(mousePassiveMotion);
-
-	//resize callback
 	glutReshapeFunc(reshape);
-
-	//fps timer callback
-	glutTimerFunc(17, FPSTimer, 0);
-
-	
+	glutTimerFunc(120, FPSTimer, 0);
 	glEnable(GL_DEPTH_TEST);
 
-	// createOurMenu();
+	// glCullFace(GL_BACK);
+	// glFrontFace(GL_CCW);
+	// glEnable(GL_CULL_FACE);
 
+	mapDisplay = glutCreateWindow("Map");
+	glutPositionWindow(800,50);
+	glutReshapeWindow(size, size);
+	glutReshapeFunc(reshape2);
+	glutDisplayFunc(displayMap);
+	glutSpecialFunc(special);
 
 	glutMainLoop();				//starts the event glutMainLoop
 	return(0);					//return may not be necessary on all compilers

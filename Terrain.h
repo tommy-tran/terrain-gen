@@ -30,6 +30,7 @@ public:
     Terrain(int x, int z);
     
     void DrawTerrain(int type);
+    void DrawMap();
     void CircleAlgorithm();
     void reset();
 

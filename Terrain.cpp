@@ -80,7 +80,6 @@ void Terrain::DrawTerrain(int type){
                     glVertex3f(x, this->height[x][z], z);
                 }
                 glEnd();
-
                 glBegin(GL_TRIANGLES);
                 for (int v = 0; v < 3; v++) {
                     int x = i + triangle2[v][0];
@@ -106,13 +105,18 @@ void Terrain::reset() {
 }
 
 void Terrain::CircleAlgorithm() {
-    int iterations = 200;
+    int iterations = 300;
+    float disp;
+    int radius;
+    int x;
+    int z;
+
     while (iterations > 0) {
-        int x = rand() % this->length; 
-        int z = rand() % this->width;
+        x = rand() % this->length; 
+        z = rand() % this->width;
     
-        float disp = this->length / 20;
-        int radius = this->length / (rand() % 4 + 4);
+        disp = this->length / 20;
+        radius = this->length / (rand() % 4 + 4);
     
         for (int i = 0; i < this->length; i++) {
             for (int j = 0; j < this->width; j++) {
@@ -134,4 +138,18 @@ void Terrain::CircleAlgorithm() {
         }
         iterations--;
     }
+}
+
+void Terrain::DrawMap() {
+    float _height;
+    float max = this->length;
+    glBegin(GL_POINTS);
+        for (int i = 0; i < this->length; i++) {
+            for (int j = 0; j < this->width; j++) {
+                _height = fabs(this->height[i][j] / this->max);
+                glColor3f(_height, _height, _height);
+                glVertex2f(i/max,j/max);
+            }
+        }
+    glEnd();
 }
