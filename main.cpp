@@ -94,9 +94,13 @@ void special(int key, int xIn, int yIn){
 			break;
 		case GLUT_KEY_LEFT:
 			yRotate -= 0.5f;
+			glutPostWindowRedisplay(mapDisplay);
+			glutPostRedisplay();
 			break;
 		case GLUT_KEY_RIGHT:
 			yRotate += 0.5f;
+			glutPostWindowRedisplay(mapDisplay);
+			glutPostRedisplay();
 			break;
 	}
 }
@@ -188,7 +192,7 @@ void displayMap(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 
-	glRotatef(5 * yRotate, 0, 0, 1);
+	glRotatef(5 * yRotate, 0, 0, -1);
 	glScalef(2,2,1);
 	
 	glTranslatef(-0.5, -0.5, 0);
