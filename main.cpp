@@ -20,13 +20,14 @@ Terrain *terrain;
 #define Z 2
 
 //Globals
-float camPos[] = {0, -60, 0};	//where the camera is
-float camTarget[] = {50, 0, 50};
+float camPos[3];
+float camTarget[3];
 float yRotate = 0;
 float xRotate = 0;
 float zRotate = 0;
 int mode = 0;
 int shape = 0;
+int size;
 
 //OpenGL functions
 //keyboard stuff
@@ -46,35 +47,38 @@ void keyboard(unsigned char key, int xIn, int yIn)
 				printf("x ALT\n");
 			else
 				printf("x\n");
-
-		case 'a':
-			camPos[X] -= 0.5f;
-			camTarget[X] -=0.5f;
-			break;
-
-		case 's':
-			if ( mod == GLUT_ACTIVE_ALT) {
-				camPos[Y] += 0.5f;
-				camTarget[Y] +=0.5f;	
-			} else {
-				camPos[Z] -= 0.5f;
-				camTarget[Z] -=0.5f;
-			}
-			break;
-
-		case 'd':
-			camPos[X] += 0.5f;
-			camTarget[X] += 0.5f;
-			break;
 		case 'w':
 			mode = (mode + 1) % 3;
 			break;
-
 		case 't':
 			shape = (shape + 1) % 2;
 			break;
 		case 'r':
 			terrain->reset();
+			break;
+		case 'o':
+			camPos[Y] -= 1.5f;
+			camTarget[Y] -=1.5f;
+			break;
+		case 'j':
+			camPos[X] -= 1.5f;
+			camTarget[X] -= 1.5f;
+			break;
+		case 'u':
+			camPos[Y] += 1.5f;
+			camTarget[Y] +=1.5f;
+			break;
+		case 'l':
+			camPos[X] += 1.5f;
+			camTarget[X] +=1.5f;
+			break;
+		case 'i':
+			camPos[Z] += 1.5f;
+			camTarget[Z] +=1.5f;
+			break;
+		case 'k':
+			camPos[Z] -= 1.5f;
+			camTarget[Z] -=1.5f;
 			break;
 		// case 'w':
 		// 	if ( mod == GLUT_ACTIVE_ALT) {
@@ -93,19 +97,19 @@ void keyboard(unsigned char key, int xIn, int yIn)
 void special(int key, int xIn, int yIn){
 	switch (key){
 		case GLUT_KEY_DOWN:
-			// camPos[Z] -= 0.5f;
-			xRotate -= 0.5f;
+			if (xRotate > -8) {
+				xRotate -= 0.5f;
+			}
 			break;
 		case GLUT_KEY_UP:
-			// camPos[Z] += 0.5f;
-			xRotate += 0.5f;
+			if (xRotate < 8) {
+				xRotate += 0.5f;
+			}
 			break;
 		case GLUT_KEY_LEFT:
-			// camPos[X] -= 0.5f;
 			yRotate -= 0.5f;
 			break;
 		case GLUT_KEY_RIGHT:
-			// camPos[X] += 0.5f;
 			yRotate += 0.5f;
 			break;
 	}
@@ -138,7 +142,18 @@ void init(void)
 	glLoadIdentity();
 	gluPerspective(45, 1, 1, 1000);
 
-	terrain = new Terrain(100,100);
+	cout << "Please input a size for the terrain(50-300): \n";
+	cin >> size;
+
+	camTarget[0] = size/2;
+	camTarget[1] = 0;
+	camTarget[2] = size/2;
+
+	camPos[0] = size/2;
+	camPos[1] = -size * 0.85;
+	camPos[2] = -size/2;
+
+	terrain = new Terrain(size,size);
 	terrain->CircleAlgorithm();
 }
 
@@ -150,11 +165,11 @@ void display(void)
 
 	gluLookAt(camPos[0], camPos[1], camPos[2], camTarget[0], camTarget[1], camTarget[2], 0,-1,0);
 
-	glTranslatef(50,0,50);
+	glTranslatef(size/2,0,size/2);
 	glPushMatrix();
 		glRotatef(5 * yRotate, 0, 1, 0);
 		glRotatef(5 * xRotate, 0, 0, 1);
-		glTranslatef(-50,0,-50);
+		glTranslatef(-size/2,0,-size/2);
 		
 		switch(mode) {
 			case 0:
@@ -171,7 +186,7 @@ void display(void)
 				glPushMatrix();
 					// glTranslatef(0,-0.1,0);
 					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-					glColor3f(1,1,1);
+					glColor3f(0,0,0);
 					terrain->DrawTerrain(shape + mode);
 				glPopMatrix();
 		}
@@ -193,21 +208,23 @@ void reshape(int w, int h)
 }
 
 void FPSTimer(int value){ 
-	glutTimerFunc(17, FPSTimer, 0);
+	glutTimerFunc(24, FPSTimer, 0);
 	glutPostRedisplay();
 }
 
 /* main function - program entry point */
 int main(int argc, char** argv)
 {
-	glutInit(&argc, argv);		//starts up GLUT
+	glutInit(&argc, argv);
+	init();
+	//starts up GLUT
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
 
-	glutInitWindowSize(500, 500);
+	glutInitWindowSize(400, 400);
 	glutInitWindowPosition(100, 100);
 
 	glutCreateWindow("Terrain Generator");	//creates the window
-
+	
 	//display callback
 	glutDisplayFunc(display);
 
@@ -226,8 +243,8 @@ int main(int argc, char** argv)
 	//fps timer callback
 	glutTimerFunc(17, FPSTimer, 0);
 
+	
 	glEnable(GL_DEPTH_TEST);
-	init();
 
 	// createOurMenu();
 
