@@ -29,6 +29,9 @@ int mode = 0;
 int shape = 0;
 int size;
 int mapDisplay;
+bool groovy = false;
+int wire = 0;
+int iterations = 300;
 
 //OpenGL functions
 //keyboard stuff
@@ -53,8 +56,16 @@ void keyboard(unsigned char key, int xIn, int yIn)
 				glCullFace(GL_BACK);
 			}
 			break;
+		case 'e':
+			if (iterations < 600) {
+				iterations = iterations + 100;
+			} else {
+				iterations = 200;
+			}
+			
+			cout << "Circles iterations: " << iterations << "\n\n";
 		case 'r':
-			terrain->reset();
+			terrain->reset(iterations);
 			glutPostWindowRedisplay(mapDisplay);
 			break;
 		case 'o':
@@ -81,6 +92,12 @@ void keyboard(unsigned char key, int xIn, int yIn)
 			camPos[Z] -= 1.5f;
 			camTarget[Z] -=1.5f;
 			break;
+		case 'f':
+			wire = (wire + 1) % 4;
+			break;
+		case 'g':
+			groovy = !groovy;
+			break;
 	}
 }
 
@@ -89,12 +106,12 @@ void keyboard(unsigned char key, int xIn, int yIn)
 void special(int key, int xIn, int yIn){
 	switch (key){
 		case GLUT_KEY_DOWN:
-			if (xRotate > -8) {
+			if (xRotate > -10) {
 				xRotate -= 0.5f;
 			}
 			break;
 		case GLUT_KEY_UP:
-			if (xRotate < 8) {
+			if (xRotate < 10) {
 				xRotate += 0.5f;
 			}
 			break;
@@ -120,20 +137,28 @@ void init(void)
 	gluPerspective(45, 1, 1, 1000);
 
 	cout << "******************\n\nTerrain Generator\n\n******************\n";
-	cout << "Controls:\nq: Quit				w: Toggle wireframe mode\nr: Randomize Terrain		t: Switch between Quads and Triangles\ni: Move camera forward		k: Move camera backwards\nj: Move Camera left		l: Move Camera right\nu: Move Camera down		o: Move Camera up\n";
-	cout << "Please input a size for the terrain(50-300): \n";
-	cin >> size;
+	cout << "Controls:\nq: Quit				w: Toggle wireframe mode\nr: Randomize Terrain		t: Switch between Quads and Triangles\ni: Move camera forward		k: Move camera backwards\nj: Move Camera left		l: Move Camera right\nu: Move Camera down		o: Move Camera up\ne: Increase circles iterations\ng: Groovy mode(looks cool with solid+wireframe(w * 2),groovy(g),night(f * 2))\nf: Switch color (Only works on wireframes)\n\n* There are many different combinations and you may be required to press twice to navigate through functionalities.\n** Restart the program if black screen or pure green terrain\n";
+
+	cout << "\nPlease input a size for the terrain(50-300): \n";
+	while (cin >> size) {
+		if (size < 50 || size > 300) {
+			cout << "\nInvalid Parameters\n";
+		} else {
+			break;
+		}
+	}
+	
 
 	camTarget[0] = size/2;
 	camTarget[1] = 0;
 	camTarget[2] = size/2;
 
 	camPos[0] = size/2;
-	camPos[1] = -size * 0.85;
+	camPos[1] = -size;
 	camPos[2] = -size/2;
 
 	terrain = new Terrain(size,size);
-	terrain->CircleAlgorithm();
+	terrain->CircleAlgorithm(iterations);
 }
 
 void display(void)
@@ -153,22 +178,20 @@ void display(void)
 		switch(mode) {
 			case 0:
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-				terrain->DrawTerrain(shape);
+				terrain->DrawTerrain(shape,wire,groovy);
 				break;
 			case 1:
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-				terrain->DrawTerrain(shape);
+				terrain->DrawTerrain(shape + 2,wire,groovy);
 				break;
 			case 2:
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-				terrain->DrawTerrain(shape);
+				terrain->DrawTerrain(shape,wire,groovy);
 				glPushMatrix();
 					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-					glColor3f(0,0,0);
-					terrain->DrawTerrain(shape + mode);
+					terrain->DrawTerrain(shape + 2,wire,groovy);
 				glPopMatrix();
 		}
-		
 	glPopMatrix();
 
 	glutSwapBuffers();
@@ -218,6 +241,15 @@ int main(int argc, char** argv)
 	glutInit(&argc, argv);
 	init();
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
+
+
+	mapDisplay = glutCreateWindow("Map");
+	glutPositionWindow(800,50);
+	glutReshapeWindow(size * 1.2, size * 1.2);
+	glutReshapeFunc(reshape2);
+	glutDisplayFunc(displayMap);
+	glutSpecialFunc(special);
+
 	glutInitWindowSize(720, 480);
 	glutInitWindowPosition(50, 50);
 	glutCreateWindow("Terrain Generator");
@@ -231,13 +263,6 @@ int main(int argc, char** argv)
 	glCullFace(GL_FRONT);
 	glFrontFace(GL_CCW);
 	glEnable(GL_CULL_FACE);
-
-	mapDisplay = glutCreateWindow("Map");
-	glutPositionWindow(800,50);
-	glutReshapeWindow(size * 1.2, size * 1.2);
-	glutReshapeFunc(reshape2);
-	glutDisplayFunc(displayMap);
-	glutSpecialFunc(special);
 
 	glutMainLoop();				//starts the event glutMainLoop
 	return(0);					//return may not be necessary on all compilers

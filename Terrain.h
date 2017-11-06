@@ -29,10 +29,10 @@ public:
     
     Terrain(int x, int z);
     
-    void DrawTerrain(int type);
+    void DrawTerrain(int type,int wire,bool groovy);
     void DrawMap();
-    void CircleAlgorithm();
-    void reset();
+    void CircleAlgorithm(int iterations);
+    void reset(int iterations);
 
 private:
 };
