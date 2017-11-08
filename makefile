@@ -17,7 +17,7 @@ else
 	endif
 endif
 
-PROGRAM_NAME= Terrain
+PROGRAM_NAME= Terrain.x
 
 run: $(PROGRAM_NAME)
 	./$(PROGRAM_NAME)$(EXEEXT)
